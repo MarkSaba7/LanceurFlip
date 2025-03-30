@@ -43,7 +43,6 @@ body {
 .form-group {
     margin-bottom: 15px;
 }
-
 label {
     display: block;
     margin-bottom: 5px;
@@ -66,8 +65,19 @@ button[type="submit"], button[type="button"] {
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    margin-right: 10px;
 }
 
 button[type="submit"]:hover, button[type="button"]:hover {
     background-color: #45a049;
+}
+
+.confirmation-box {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #4CAF50;
+    border-radius: 4px;
+    background-color: #dff0d8;
+    color: #3c763d;
+    display: none;
 }
