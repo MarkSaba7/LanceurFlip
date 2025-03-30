@@ -1,0 +1,20 @@
+{
+  "name": "lanceurflip",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "run": "node ./bin/Application.js",
+    "build": "npx tsc",
+    "bnr": "npm run build & npm run run"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/express": "^5.0.1",
+    "body-parser": "^2.2.0",
+    "express": "^4.21.2",
+    "typescript": "^5.8.2"
+  },
+  "type": "module"
+}

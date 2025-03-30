@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./index.css" rel="stylesheet"> 
+    <title>Contrôle de Paramètres</title>
+</head>
+<body>
+    <h1>Contrôle de Paramètres</h1>
+
+    <div class="tab">
+        <button class="tablinks active" onclick="openTab(event, 'vitesse')">Contrôle Vitesse/Angle</button>
+        <button class="tablinks" onclick="openTab(event, 'distance')">Contrôle Distance</button>
+    </div>
+
+    <div id="vitesse" class="tabcontent" style="display: block;">
+        <h2>Paramètres de Vitesse et Angle</h2>
+        <form id="speedForm">
+            <div class="form-group">
+                <label for="speed">Vitesse (0-300 rpm):</label>
+                <input type="number" id="speed" name="speed" min="0" max="300" required>
+            </div>
+            <div class="form-group">
+                <label for="angle">Angle (0-22°):</label>
+                <input type="number" id="angle" name="angle" min="0" max="22" required>
+            </div>
+            <button type="submit">Valider</button>
+            <button type="button" onclick="clearSpeedForm()">Effacer</button>
+        </form>
+    </div>
+
+    <div id="distance" class="tabcontent">
+        <h2>Paramètres de Distance</h2>
+        <form id="distanceForm">
+            <div class="form-group">
+                <label for="distance">Distance finale (0-140 cm):</label>
+                <input type="number" id="distance" name="distance" min="0" max="140" required>
+            </div>
+            <button type="submit">Valider</button>
+            <button type="button" onclick="clearDistanceForm()">Effacer</button>
+        </form>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        function clearSpeedForm() {
+            document.getElementById("speedForm").reset();
+        }
+
+        function clearDistanceForm() {
+            document.getElementById("distanceForm").reset();
+        }
+
+        // Gestion de la soumission des formulaires
+        document.getElementById("speedForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            alert("Paramètres de vitesse/angle soumis!");
+        });
+
+        document.getElementById("distanceForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            alert("Paramètre de distance soumis!");
+        });
+    </script>
+</body>
+</html>
