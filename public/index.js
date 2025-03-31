@@ -3,7 +3,6 @@ const tabs = []
 let tabOuverte = 0
 
 
-
 function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
@@ -58,7 +57,6 @@ document.getElementById("distanceForm").addEventListener("submit", async (e) => 
     e.preventDefault(); 
 
     const distance = parseFloat(document.getElementById("distance").value);
-    console.log(distance)
 
     const reponse = await fetch("http://localhost:8080/api/soumettre-distance", {
         method: "POST", 
