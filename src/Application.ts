@@ -4,11 +4,9 @@ import { getVitesseRPM, initialiserDonneesCSV } from "./utils/Lecteur.js";
 export default class Application{
     
     constructor(){
+        initialiserDonneesCSV("./static/final.csv");
         new ServeurWeb();
     }
 }
 
-//new Application();
-
-initialiserDonneesCSV("./static/final.csv");
-console.log(getVitesseRPM(1.9, 5.2));
+new Application();
