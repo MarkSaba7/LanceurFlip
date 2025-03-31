@@ -1,4 +1,5 @@
 import ServeurWeb from "./ServeurWeb.js";
+import { getVitesseRPM, initialiserDonneesCSV } from "./utils/Lecteur.js";
 
 export default class Application{
     
@@ -7,4 +8,7 @@ export default class Application{
     }
 }
 
-new Application();
+//new Application();
+
+initialiserDonneesCSV("./static/final.csv");
+console.log(getVitesseRPM(1.9, 5.2));
