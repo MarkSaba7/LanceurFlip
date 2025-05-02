@@ -35,7 +35,6 @@ export default class APIEndpoint {
 
         serveur.post("/api/soumettre-vitesse", (req, rep) => this.submitVitesse(req, rep));
         serveur.post("/api/soumettre-distance", (req, rep) => this.submitDistance(req, rep));
-        serveur.get("/api/port-status", (req, rep) => this.getPortStatus(req, rep));
     }
 
     
@@ -74,44 +73,78 @@ export default class APIEndpoint {
 
     private setupSerialListeners(): void {
         if (!this.port) return;
-
-    this.port.on('data', (data) => {
-        const response = data.toString().trim();
-        console.log('[ARDUINO RESPONSE]', response);
-        
-        try {
-            const json = JSON.parse(response);
-            if (json.status === 'ok') {
-                console.log('Commande exécutée avec succès:', json);
-            }
-        } catch (e) {
-            console.warn('Réponse non-JSON de l\'ESP32:', response);
-        }
-    });
-
-        if (!this.port) return;
-
+    
+        // Buffer pour accumuler les données
+        let dataBuffer = '';
+    
         this.port.on('data', (data) => {
-            console.log('Données reçues de l\'Arduino:', data.toString());
+            // Ajouter les nouvelles données au buffer
+            const newData = data.toString();
+            dataBuffer += newData;
+            
+            // Chercher des messages complets (terminés par un retour à la ligne)
+            const lines = dataBuffer.split('\n');
+            
+            // Traiter tous les messages complets
+            if (lines.length > 1) {
+                // Traiter toutes les lignes sauf la dernière (qui pourrait être incomplète)
+                for (let i = 0; i < lines.length - 1; i++) {
+                    const line = lines[i].trim();
+                    if (line) {
+                        this.processSerialMessage(line);
+                    }
+                }
+                
+                // Garder la dernière ligne potentiellement incomplète dans le buffer
+                dataBuffer = lines[lines.length - 1];
+            }
         });
-
+    
         this.port.on('error', (err) => {
             console.error('Erreur port série:', err.message);
         });
-
+    
         this.port.on('close', () => {
             console.log('Port série fermé');
         });
     }
-
-    private getPortStatus(req: Request, rep: Response): void {
-        const isConnected = this.port && this.port.isOpen;
-        const portPath = this.port ? this.port.path : 'non connecté';
+    
+    private processSerialMessage(message: string): void {
+        console.log('[ARDUINO RESPONSE]', message);
         
-        rep.status(200).json({
-            connected: isConnected,
-            port: portPath
-        });
+        try {
+            // Vérifier si le message ressemble à du JSON
+            if (message.includes('{') && message.includes('}')) {
+                // Extraire le JSON entre les accolades
+                const jsonStart = message.indexOf('{');
+                const jsonEnd = message.lastIndexOf('}') + 1;
+                
+                if (jsonStart >= 0 && jsonEnd > jsonStart) {
+                    const jsonStr = message.substring(jsonStart, jsonEnd);
+                    
+                    const json = JSON.parse(jsonStr);
+                    console.log('Données reçues de l\'Arduino:', json);
+                    
+                    // Traiter les différents types de messages
+                    if (json.status === 'ok') {
+                        console.log('Commande exécutée avec succès:', json);
+                    } else if (json.status === 'error') {
+                        'Erreur inconnue';
+                        console.error('Erreur reportée par l\'ESP32:', json.message);
+                    } else if (json.debug === 'received') {
+                        console.log('ESP32 a reçu:', json.raw || json.data);
+                    } else {
+                        console.log('Message de l\'ESP32:', json);
+                    }
+                } else {
+                    throw new Error('Format JSON invalide');
+                }
+            } else {
+                throw new Error('Pas de JSON détecté');
+            }
+        } catch (e) {
+            console.warn('Réponse non-JSON de l\'ESP32:', message);
+        }
     }
 
     private async submitVitesse(req: Request, rep: Response): Promise<void> {
