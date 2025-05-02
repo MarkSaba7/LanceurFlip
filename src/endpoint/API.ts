@@ -7,25 +7,20 @@ export default class APIEndpoint {
     private port: SerialPort | null = null;
 
     constructor(serveur: express.Express){
-        // Tentative d'ouverture du port série avec gestion d'erreur
         try {
-            // Liste des ports série possibles (Windows, Mac, Linux)
             const possiblePaths = ['COM3', 'COM4', '/dev/ttyUSB0', '/dev/ttyACM0', '/dev/cu.usbserial-*'];
             
-            // On essaie d'abord COM3 (votre configuration originale)
             this.port = new SerialPort({
-                path: 'COM3', // Modifier selon votre configuration
+                path: 'COM3', 
                 baudRate: 115200,
-                autoOpen: false // Ne pas ouvrir automatiquement pour gérer les erreurs
+                autoOpen: false 
             });
             
-            // Ouverture du port avec gestion d'erreur
             this.port.open((err) => {
                 if (err) {
                     console.error("Erreur lors de l'ouverture du port série:", err.message);
                     console.log("Tentative de connection à d'autres ports série...");
                     
-                    // Si COM3 ne fonctionne pas, essayez les autres ports
                     this.tryAlternativePorts(possiblePaths.filter(p => p !== 'COM3'));
                 } else {
                     console.log("Port série ouvert avec succès sur COM3!");
@@ -38,11 +33,12 @@ export default class APIEndpoint {
             console.log("Le serveur continuera à fonctionner sans communication série.");
         }
 
-        // Configurer les routes
         serveur.post("/api/soumettre-vitesse", (req, rep) => this.submitVitesse(req, rep));
         serveur.post("/api/soumettre-distance", (req, rep) => this.submitDistance(req, rep));
         serveur.get("/api/port-status", (req, rep) => this.getPortStatus(req, rep));
     }
+
+    
 
     private tryAlternativePorts(paths: string[]): void {
         if (paths.length === 0) {
@@ -63,7 +59,7 @@ export default class APIEndpoint {
             this.port.open((err) => {
                 if (err) {
                     console.error(`Échec de connexion au port ${currentPath}:`, err.message);
-                    // Essayer le prochain port
+                    
                     this.tryAlternativePorts(paths.slice(1));
                 } else {
                     console.log(`Port série ouvert avec succès sur ${currentPath}!`);
@@ -72,7 +68,6 @@ export default class APIEndpoint {
             });
         } catch (e) {
             console.error(`Erreur lors de l'initialisation du port ${currentPath}:`, e);
-            // Essayer le prochain port
             this.tryAlternativePorts(paths.slice(1));
         }
     }
@@ -80,17 +75,30 @@ export default class APIEndpoint {
     private setupSerialListeners(): void {
         if (!this.port) return;
 
-        // Écouter les données entrantes
+    this.port.on('data', (data) => {
+        const response = data.toString().trim();
+        console.log('[ARDUINO RESPONSE]', response);
+        
+        try {
+            const json = JSON.parse(response);
+            if (json.status === 'ok') {
+                console.log('Commande exécutée avec succès:', json);
+            }
+        } catch (e) {
+            console.warn('Réponse non-JSON de l\'ESP32:', response);
+        }
+    });
+
+        if (!this.port) return;
+
         this.port.on('data', (data) => {
             console.log('Données reçues de l\'Arduino:', data.toString());
         });
 
-        // Gérer les erreurs du port
         this.port.on('error', (err) => {
             console.error('Erreur port série:', err.message);
         });
 
-        // Gérer la fermeture du port
         this.port.on('close', () => {
             console.log('Port série fermé');
         });
@@ -110,7 +118,6 @@ export default class APIEndpoint {
         const requete = req.body as RequeteVitesse;
         console.log("Données reçues (vitesse):", requete);
         
-        // Vérifier si le port série est disponible
         if (!this.port || !this.port.isOpen) {
             console.warn("Port série non disponible. Impossible d'envoyer les données.");
             rep.status(503).json({
@@ -121,7 +128,6 @@ export default class APIEndpoint {
         }
         
         try {
-            // Formater les données comme attendu par l'Arduino
             const arduinoData = JSON.stringify({
                 vitesse: requete.vitesse,
                 angle: requete.angle
@@ -159,17 +165,14 @@ export default class APIEndpoint {
             
             console.log("Données reçues (distance):", requete);
             
-            // Calculer la vitesse à partir de la distance
             const vitesse = getVitesseRPM(angle, requete.distance);
             console.log(`Distance: ${requete.distance}, Angle: ${angle} => Vitesse calculée: ${vitesse} RPM`);
             
-            // Créer la requête vitesse
             const requeteVitesse: RequeteVitesse = {
                 vitesse: vitesse,
                 angle: angle
             };
             
-            // Vérifier si le port série est disponible
             if (!this.port || !this.port.isOpen) {
                 console.warn("Port série non disponible. Impossible d'envoyer les données.");
                 rep.status(503).json({
@@ -179,10 +182,8 @@ export default class APIEndpoint {
                 return;
             }
             
-            // Formater les données comme attendu par l'Arduino
             const arduinoData = JSON.stringify(requeteVitesse) + '\n';
             
-            // Envoyer les données
             this.port.write(arduinoData, (err) => {
                 if (err) {
                     console.error("Erreur port série:", err);
