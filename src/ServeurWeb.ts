@@ -18,7 +18,7 @@ export default class ServeurWeb{
         new APIEndpoint(app);
 
         app.listen(8080, () => {
-            console.log("Server is listening");
+            console.log("Le serveur est actif!");
         });
     }
 }

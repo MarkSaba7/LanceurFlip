@@ -87,18 +87,45 @@ document.getElementById("speedForm").addEventListener("submit", async (e) => {
 document.getElementById("distanceForm").addEventListener("submit", async (e) => {
     e.preventDefault(); 
 
-    const distance = parseFloat(document.getElementById("distance").value);
-    const angle = parseFloat(document.getElementById("distanceAngle").value);
-    console.log(`Distance: ${distance}, Angle: ${angle}`);
+    // Récupérer les éléments d'input
+    const distanceInput = document.getElementById("distance");
+    const angleInput = document.getElementById("distanceAngle");
+    
+    console.log("Élément distance trouvé:", distanceInput !== null);
+    if (!distanceInput) {
+        montrerMessage("distanceConfirmation", false, "Élément 'distance' introuvable dans le DOM");
+        return;
+    }
+    
+    console.log("Valeur brute de distance:", distanceInput.value);
+    
+    // Conversion explicite en nombres
+    const distance = parseFloat(distanceInput.value);
+    const angle = parseFloat(angleInput.value);
+    
+    console.log(`Distance après parseFloat: ${distance}, Type: ${typeof distance}, isNaN: ${isNaN(distance)}`);
+    console.log(`Angle après parseFloat: ${angle}, Type: ${typeof angle}, isNaN: ${isNaN(angle)}`);
+
+    // Vérification des valeurs avant envoi
+    if (isNaN(distance)) {
+        montrerMessage("distanceConfirmation", false, "La distance n'est pas un nombre valide");
+        return;
+    }
+    
+    if (isNaN(angle)) {
+        montrerMessage("distanceConfirmation", false, "L'angle n'est pas un nombre valide");
+        return;
+    }
 
     try {
+        // IMPORTANT: Assurez-vous que les noms des propriétés correspondent à ce que le backend attend
         const reponse = await fetch("http://localhost:8080/api/soumettre-distance", {
             method: "POST", 
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                distance: distance,
+                distance: distance,  // Cette propriété doit correspondre exactement à celle attendue dans RequeteDistance
                 angle: angle
             })
         });
