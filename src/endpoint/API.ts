@@ -193,7 +193,7 @@ export default class APIEndpoint {
 
     private async submitDistance(req: Request, rep: Response): Promise<void> {
         try {
-            const requete = req.body.stringify as RequeteDistance;
+            const requete = req.body as RequeteDistance;
             const angle = requete.angle || 0;
             
             console.log("Données reçues (distance):", requete);
