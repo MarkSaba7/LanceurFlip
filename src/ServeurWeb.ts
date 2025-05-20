@@ -1,10 +1,11 @@
 import express from "express";
-import submit from "./endpoint/Index.js";
 import IndexEndpoint from "./endpoint/Index.js";
 import bodyParser from "body-parser";
 import APIEndpoint from "./endpoint/API.js";
 
 export default class ServeurWeb{
+    // Demarre le serveur pour pouvoir tout traiter et initialiser.
+    // Permet de choisir le port pour le serveur
     public static instance: ServeurWeb;
 
     constructor(){

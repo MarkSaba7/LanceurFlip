@@ -1,6 +1,7 @@
 import ServeurWeb from "./ServeurWeb.js";
-import { getVitesseRPM, initialiserDonneesCSV } from "./utils/Lecteur.js";
+import {initialiserDonneesCSV} from "./utils/Lecteur.js";
 
+// Permet de tout initialiser et mettre en demmarage le serveur
 export default class Application{
     
     constructor(){
