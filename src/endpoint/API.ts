@@ -3,8 +3,18 @@ import fetch from 'node-fetch';
 import { SerialPort } from 'serialport';
 import { getVitesseRPM } from '../utils/Lecteur.js';
 
+
+/**
+ * Classe gérant les endpoints API et la communication série avec le lanceur de frisbee
+ */
+
 export default class APIEndpoint {
     private port: SerialPort | null = null;
+
+    /**
+     * Initialise l'API et tente de se connecter au port série
+     * @param {express.Express} serveur - Instance du serveur Express
+     */
 
     constructor(serveur: express.Express){
         try {
@@ -37,7 +47,11 @@ export default class APIEndpoint {
         serveur.post("/api/soumettre-distance", (req, rep) => this.submitDistance(req, rep));
     }
 
-    
+
+    /**
+     * Tente de se connecter à d'autres ports série disponibles
+     * @param {string[]} paths - Liste des ports série à essayer
+     */
 
     private tryAlternativePorts(paths: string[]): void {
         if (paths.length === 0) {
@@ -70,6 +84,10 @@ export default class APIEndpoint {
             this.tryAlternativePorts(paths.slice(1));
         }
     }
+
+    /**
+     * Configure les écouteurs d'événements pour le port série
+     */
 
     private setupSerialListeners(): void {
         if (!this.port) return;
@@ -108,6 +126,11 @@ export default class APIEndpoint {
             console.log('Port série fermé');
         });
     }
+
+    /**
+     * Traite les messages reçus de l'Arduino/ESP32
+     * @param {string} message - Message reçu du port série
+     */
     
     private processSerialMessage(message: string): void {
         console.log('[ARDUINO RESPONSE]', message);
@@ -146,6 +169,12 @@ export default class APIEndpoint {
             console.warn('Réponse non-JSON de l\'ESP32:', message);
         }
     }
+
+     /**
+     * Endpoint pour soumettre une vitesse et un angle directement
+     * @param {Request} req - Requête Express contenant les paramètres
+     * @param {Response} rep - Réponse Express
+     */
 
     private async submitVitesse(req: Request, rep: Response): Promise<void> {
         const requete = req.body as RequeteVitesse;
@@ -190,6 +219,12 @@ export default class APIEndpoint {
             });
         }
     }
+
+      /**
+     * Endpoint pour soumettre une distance cible (calcule automatiquement la vitesse nécessaire)
+     * @param {Request} req - Requête Express contenant les paramètres
+     * @param {Response} rep - Réponse Express
+     */
 
     private async submitDistance(req: Request, rep: Response): Promise<void> {
         try {
@@ -252,3 +287,17 @@ type RequeteDistance = {
     distance: number;
     angle?: number;
 }
+
+/**
+ * Structure de requête pour les paramètres de vitesse
+ * @typedef {Object} RequeteVitesse
+ * @property {number} vitesse - Vitesse de rotation en RPM
+ * @property {number} angle - Angle de lancement en degrés
+ */
+
+/**
+ * Structure de requête pour les paramètres de distance
+ * @typedef {Object} RequeteDistance
+ * @property {number} distance - Distance cible en mètres
+ * @property {number} [angle] - Angle de lancement optionnel en degrés
+ */

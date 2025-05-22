@@ -1,4 +1,14 @@
+/**
+ * Tableau global pour garder une trace des onglets disponibles
+ * @type {string[]}
+ */
 const tabs = []
+
+/**
+ * Ouvre un onglet spécifique et met à jour l'interface utilisateur
+ * @param {Event} evt - L'événement de clic
+ * @param {string} tabName - L'ID de l'onglet à afficher
+ */
 
 function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
@@ -17,10 +27,18 @@ function openTab(evt, tabName) {
     evt.currentTarget.className += " active";
 }
 
+/**
+ * Réinitialise le formulaire de vitesse et cache le message de confirmation
+ */
+
 function clearSpeedForm() {
     document.getElementById("speedForm").reset();
     document.getElementById("speedConfirmation").style.display = "none";
 }
+
+/**
+ * Réinitialise le formulaire de distance et cache le message de confirmation
+ */
 
 function clearDistanceForm() {
     document.getElementById("distanceForm").reset();
@@ -49,6 +67,12 @@ window.addEventListener('DOMContentLoaded', async () => {
         console.error("Erreur lors de la vérification du port série:", error);
     }
 });
+
+/**
+ * Gère la soumission du formulaire de vitesse
+ * @param {Event} e - L'événement de soumission du formulaire
+ * @async
+ */
 
 document.getElementById("speedForm").addEventListener("submit", async (e) => {
     e.preventDefault(); 
@@ -83,6 +107,12 @@ document.getElementById("speedForm").addEventListener("submit", async (e) => {
         montrerMessage("speedConfirmation", false, "Erreur de communication avec le serveur");
     }
 });
+
+/**
+ * Gère la soumission du formulaire de distance
+ * @param {Event} e - L'événement de soumission du formulaire
+ * @async
+ */
 
 document.getElementById("distanceForm").addEventListener("submit", async (e) => {
     e.preventDefault(); 
@@ -146,6 +176,12 @@ document.getElementById("distanceForm").addEventListener("submit", async (e) => 
     }
 });
 
+/**
+ * Valide qu'une chaîne de caractères représente un nombre valide
+ * @param {string} str - La chaîne à valider
+ * @return {Object} Un objet avec le statut de validation et la valeur convertie
+ */
+
 function validerNombre(str) {
     const valeur = parseFloat(str);
     if (isNaN(valeur)) {
@@ -159,6 +195,13 @@ function validerNombre(str) {
         valeur: valeur
     }
 }
+
+/**
+ * Affiche un message dans un élément spécifique de la page
+ * @param {string} elementId - L'ID de l'élément où afficher le message
+ * @param {boolean} success - Si true, affiche un message de succès, sinon un message d'erreur
+ * @param {string} message - Le contenu du message à afficher
+ */
 
 function montrerMessage(elementId, success, message) {
     const confirmation = document.getElementById(elementId);
@@ -175,6 +218,12 @@ function montrerMessage(elementId, success, message) {
     confirmation.innerHTML = message;
     confirmation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
+
+/**
+ * Affiche un message global en haut de la page
+ * @param {string} message - Le contenu du message à afficher
+ * @param {boolean} success - Si true, affiche un message de succès, sinon un message d'erreur
+ */
 
 function montrerMessageGlobal(message, success) {
     // Créer un élément de message global s'il n'existe pas

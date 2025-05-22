@@ -1,3 +1,12 @@
+
+/*
+  Modèle pour l'interface de contrôle du lanceur de frisbee
+  Contient :
+  - Mise en page générale et structure des onglets
+  - Styles des formulaires (vitesse/angle et distance) 
+  - Apparence des boutons et messages de confirmation
+*/
+
 body {
     font-family: Arial, sans-serif;
     max-width: 600px;
